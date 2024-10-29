@@ -14,7 +14,7 @@
     - name: Install Docker
       ansible.builtin.apt:
         name: docker.io
-        state: installed
+        state: present
     - name: Add users to Docker group
       ansible.builtin.user:
         name: "{{ item }}"

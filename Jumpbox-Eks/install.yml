@@ -77,12 +77,18 @@
     - name: Install Helm
       ansible.builtin.command: /tmp/get_helm.sh
     
-    - name: Downlaod EKSctl 
+    - name: Download eksctl
+      ansible.builtin.get_url:
+        url: https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_{{ ansible_system | lower }}_amd64.tar.gz
+        dest: /tmp/eksctl.tar.gz
+        mode: '0644'
+
+    - name: Unarchive eksctl
       ansible.builtin.unarchive:
-        src: https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_{{ ansible_system | lower }}_amd64.tar.gz
+        src: /tmp/eksctl.tar.gz
         dest: /tmp
-      remote_src: yes
-      
+        remote_src: no
+
     - name: Move eksctl to /usr/local/bin
       ansible.builtin.command:
         cmd: mv /tmp/eksctl /usr/local/bin/eksctl

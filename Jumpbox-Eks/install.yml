@@ -27,7 +27,7 @@
     - name: Set Docker socket permissions
       ansible.builtin.file:
         path: /var/run/docker.sock
-        state: directory
+        state: file
         mode: '777'
     - name: Start service Docker
       ansible.builtin.systemd:

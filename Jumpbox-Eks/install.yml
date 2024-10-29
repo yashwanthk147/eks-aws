@@ -43,7 +43,7 @@
 
     - name: Install AWS CLI
       ansible.builtin.command: /tmp/aws/install
-      register: kubectl_version
+      register: awscli_version
 
     - name: Clean up AWS CLI installer
       ansible.builtin.file:

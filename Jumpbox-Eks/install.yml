@@ -35,6 +35,13 @@
         enabled: yes
         state: restarted
 
+    # AWS CLI installation
+    - name: Check if AWS CLI is installed
+      ansible.builtin.command: aws --version
+      register: awscli_version
+      ignore_errors: yes
+      changed_when: false
+
     - name: Download AWS CLI installer
       ansible.builtin.get_url:
         url: https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip
@@ -49,7 +56,7 @@
 
     - name: Install AWS CLI
       ansible.builtin.command: /tmp/aws/install
-      register: awscli_version
+      when: awscli_version.rc != 0
 
     - name: Clean up AWS CLI installer
       ansible.builtin.file:

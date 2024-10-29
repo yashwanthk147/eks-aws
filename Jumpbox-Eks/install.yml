@@ -1,0 +1,89 @@
+---
+- name: Install Docker, AWS CLI, kubectl, eksctl, and Helm on Ubuntu
+  hosts:
+  become: true
+  tasks: 
+    - name: Update apt cache and make sure Vim, Curl and Unzip are installed
+      apt:
+        name: "{{ item }}"
+        update_cache: yes
+      loop:
+        - vim
+        - curl
+        - unzip
+    - name: Install Docker
+      ansible.builtin.apt:
+        name: docker.io
+        state: installed
+    - name: Add users to Docker group
+      ansible.builtin.user:
+        name: "{{ item }}"
+        groups: docker
+        append: yes
+        state: present
+        loop:
+        - jenkins
+        - ubuntu
+    - name: Set Docker socket permissions
+      ansible.builtin.file:
+        path: /var/run/docker.sock
+        state: directory
+        mode: '777'
+    - name: Start service Docker
+      ansible.builtin.systemd:
+        name: docker 
+        enabled: yes
+        state: restarted
+        
+    - name: Download AWS CLI
+      ansible.builtin.unarchive:
+        src: https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip
+        dest:  /tmp
+      remote_src: yes
+
+    - name: Install AWS CLI
+      ansible.builtin.command: /tmp/aws/install
+      register: kubectl_version
+
+    - name: Clean up AWS CLI installer
+      ansible.builtin.file:
+        path: /tmp/aws
+        state: absent
+    
+    - name: Download kubectl
+      ansible.builtin.get_url:
+        url: https://dl.k8s.io/release/v1.28.0/bin/linux/amd64/kubectl
+        dest: /usr/local/bin/kubectl
+        mode: '0755'
+    
+    - name: Verify kubectl installation
+      ansible.builtin.command: kubectl version --client
+      register: kubectl_version
+      changed_when: false
+    
+    # Helm installation
+    - name: Download Helm installation script
+      ansible.builtin.get_url:
+        url: https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
+        dest: /tmp/get_helm.sh
+        mode: '0700'
+
+    - name: Install Helm
+      ansible.builtin.command: /tmp/get_helm.sh
+    
+    - name: Downlaod EKSctl 
+      ansible.builtin.unarchive:
+        src: https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_{{ ansible_system | lower }}_amd64.tar.gz
+        dest: /tmp
+      remote_src: yes
+      
+    - name: Move eksctl to /usr/local/bin
+      ansible.builtin.command:
+        cmd: mv /tmp/eksctl /usr/local/bin/eksctl
+        creates: /usr/local/bin/eksctl
+
+    - name: Verify eksctl installation
+      ansible.builtin.command:
+        cmd: eksctl version
+      register: eksctl_version
+      changed_when: false

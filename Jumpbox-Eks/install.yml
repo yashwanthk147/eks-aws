@@ -34,11 +34,11 @@
         name: docker 
         enabled: yes
         state: restarted
-        
+
     - name: Download AWS CLI
       ansible.builtin.unarchive:
         src: https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip
-        dest:  /tmp
+        dest: /tmp
       remote_src: yes
 
     - name: Install AWS CLI

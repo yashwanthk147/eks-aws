@@ -35,11 +35,17 @@
         enabled: yes
         state: restarted
 
-    - name: Download AWS CLI
+    - name: Download AWS CLI installer
+      ansible.builtin.get_url:
+        url: https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip
+        dest: /tmp/awscliv2.zip
+        mode: '0644'
+
+    - name: Unarchive AWS CLI installer
       ansible.builtin.unarchive:
-        src: https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip
+        src: /tmp/awscliv2.zip
         dest: /tmp
-      remote_src: yes
+        remote_src: no
 
     - name: Install AWS CLI
       ansible.builtin.command: /tmp/aws/install

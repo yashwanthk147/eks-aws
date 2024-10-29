@@ -21,7 +21,7 @@
         groups: docker
         append: yes
         state: present
-        loop:
+      loop:
         - jenkins
         - ubuntu
     - name: Set Docker socket permissions
